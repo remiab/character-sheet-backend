@@ -42,6 +42,13 @@ spell_dict = {
     "modifier": 5,
     "level": 2,
     "targets": "1"
+    },
+    "bend time": {
+     "ndice": 3,
+     "sides": 8,
+     "modifier": 0,
+     "level": 3,
+     "targets": "n/a"
     }
 }
 
@@ -58,6 +65,19 @@ def handle_damage(spell, level):
          pass
 
     rolls =[random.randint(1, d) for i in range(n)]
-    return sum(rolls) + m
+    return rolls, sum(rolls) + m
+
+def menu():
+    menu = ["Dice Roll", "Cast a Spell", "Exit"]
+    for i, item in enumerate(menu):
+          print(f"{i+1}) {item}")
+    choice = input("Enter a number to choose an option: ").strip()
+    try:
+        choice = int(choice) -1
+    except ValueError:
+        print("error found")
+    else:
+         print("good choice")
+
     
-print(handle_damage('fireball', 4))
+menu()
