@@ -67,17 +67,23 @@ def handle_damage(spell, level):
     rolls =[random.randint(1, d) for i in range(n)]
     return rolls, sum(rolls) + m
 
-def menu():
+def print_menu():
     menu = ["Dice Roll", "Cast a Spell", "Exit"]
     for i, item in enumerate(menu):
           print(f"{i+1}) {item}")
     choice = input("Enter a number to choose an option: ").strip()
+    
     try:
-        choice = int(choice) -1
-    except ValueError:
-        print("error found")
+        choice = int(choice)
+        if choice <0 or choice > len(menu):
+             raise Exception
+
+    except:
+        print(f"Please enter a number between 1 and {len(menu)+1}")
+        print_menu()
     else:
-         print("good choice")
+        choice -= 1
+        print(f"you have chosen {menu[choice]}")
 
     
-menu()
+print_menu()
