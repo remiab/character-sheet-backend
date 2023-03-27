@@ -60,6 +60,12 @@ spell_dict = {
     }
 }
 
+ithen = {
+    "max_level": 4,
+    "ATK": 10,
+    "DC": 18
+}
+
 def handle_damage(spell, level):
     n = spell_dict[spell]["ndice"]
     d = spell_dict[spell]["sides"]
@@ -72,40 +78,115 @@ def handle_damage(spell, level):
     else:
          pass
 
-    rolls =[random.randint(1, d) for i in range(n)]
-    return rolls, sum(rolls) + m
+    return handle_roll(n, d, m)
 
 def select_spell():
-     print("select spell")
+    choice = print_menu(spell_dict)
 
-def dice_roll():
+    spell_name = list(spell_dict.keys())[choice]
+    spell_stats = spell_dict[spell_name]
+
+    ll = spell_stats["level"]
+    ul = 4
+    string1 = f"Enter level to cast {spell_name.title()}: "
+    string2 = f"Enter a number greater than or equal to {ll} (up to {ul}): "
+    level = input_int(string1, string2, ul, ll)
+    cast_spell(spell_name, level)
+
+def cast_spell(spell, level):
+    behaviour = spell_dict[spell]["HIT/DC"]
+    if behaviour == None:
+        pass
+    else:
+        if behaviour == "HIT":
+            hit = handle_roll(1, 20, ithen["ATK"])
+            q_hit = check_yn(f"You rolled a {hit} to hit, did this hit? Y/N: ")
+            if q_hit == 'y':
+                pass
+            else:
+                main_menu()
+        else:
+            print(f"Affected creatures must make a DC {ithen['DC']} {behaviour} save")
+            quit()
+
+
+def check_yn(string1):
+    q = input(string1).strip().lower()
+    if q == 'y' or q == 'n':
+        return q
+    else: 
+        q = check_yn(string1)
+        return q
+
+
+def custom_roll():
     dice = {"d4": 4, "d6": 6, "d8": 8, "d10": 10, "d12": 12, "d20": 20, "d100": 100 }
     sides = [dice[key] for key in dice.keys()]
     choice = print_menu(dice)
+
     if type(choice) == int:
-        d = sides[choice]
-        print(d)
+        s = sides[choice]
+        n = input_int("Enter number of dice: ", "Enter number of dice")
+        m = input_int("Enter modifer: ", "Enter modifier")
+        total = handle_roll(n, s, m)
+        print(f"For your roll of {n}d{s} + {m} you rolled a total of : {total}")
+        main_menu()
+        
     else:
-        dice_roll()
+        custom_roll()
+
+def input_int(string1, string2= "Enter a number to choose an option: ", 
+              u_limit=20, l_limit=0, ):
     
-     
+    num = input(f"{string1}").strip()
+
+    if check_int(num, l_limit, u_limit):
+        return int(num)
+    else:
+        num = input_int(string2, string2, u_limit, l_limit)
+        return int(num)
+    
+def check_int(input_val, l_limit=0, u_limit=20):
+    try:
+        num = int(input_val)
+        if num < l_limit or num > u_limit:
+            raise Exception
+        # return True
+    except:
+        return False
+    
+    else:
+        return True
+    
+
+def handle_roll(n, s, m):
+    if s == 20:
+        rolls = [random.randint(1,s) + m for i in range(n)]
+    else:
+        rolls = [random.randint(1,s) for i in range(n)]
+        rolls = sum(rolls) + m
+    return rolls
+    
 
 def print_menu(iterable):
     for i, item in enumerate(iterable):
         print(f"{i+1}) {item}")
-    choice = input("Enter a number to choose an option: ").strip()
+    choice = int(input_int("Enter a number to choose an option: ",
+                       f"Please enter a number between 1 and {len(iterable)}: ",
+                       len(iterable))) -1
+    return choice
     
-    try:
-        choice = int(choice)
-        if choice <0 or choice > len(iterable):
-            raise Exception
-        choice -= 1
+    # try:
+    #     choice = int(choice)
+    #     if choice <0 or choice > len(iterable):
+    #         raise Exception
+    #     choice -= 1
 
-    except:
-        print(f"Please enter a number between 1 and {len(iterable)}")
-        choice = None
+    # except:
+    #     print(f"Please enter a number between 1 and {len(iterable)}")
+    #     choice = None
     
-    finally: return choice
+    # finally: return choice
 
 
 def main_menu():
@@ -113,7 +194,7 @@ def main_menu():
     choice = print_menu(_main_menu)
 
     if choice == 0:
-        dice_roll()
+        custom_roll()
     
     else:
         if choice == 1:
