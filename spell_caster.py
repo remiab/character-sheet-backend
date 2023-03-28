@@ -10,7 +10,8 @@ spell_dict = {
     "modifier": 0,
     "level": 3,
     "targets": ">1",
-    "HIT/DC": "DEX"
+    "HIT/DC": "DEX",
+    "success": 0.5
     },
     "chromatic orb":{
     "ndice":3,
@@ -26,7 +27,8 @@ spell_dict = {
     "modifier": 0,
     "level": 1,
     "targets": ">1",
-    "HIT/DC": "WIS"
+    "HIT/DC": "WIS",
+    "success": 0
     },
     "catapult":{
     "ndice": 3,
@@ -34,7 +36,8 @@ spell_dict = {
     "modifier": 0,
     "level": 1,
     "targets": "1",
-    "HIT/DC": "DEX"
+    "HIT/DC": "DEX",
+    "success": 0
     },
     "shatter": {
     "ndice": 3,
@@ -42,7 +45,8 @@ spell_dict = {
     "modifier": 0,
     "level": 2,
     "targets": ">1",
-    "HIT/DC": "CON"
+    "HIT/DC": "CON",
+    "success": 0.5
     },
     "lifetap":{
     "ndice": 2,
@@ -109,6 +113,8 @@ def cast_spell(spell, level):
             spell_attack(spell_name, level, n, s, m)
         else:
             print(f"Affected creatures must make a DC {ithen['DC']} {behaviour} save")
+            aoe_attack(spell, n, s, m)
+
 
 def check_upcast(spell, level, n):
     a = n
@@ -136,6 +142,15 @@ def spell_attack(_name, level, n, s, m):
         main_menu()
     else:
         main_menu()
+
+def aoe_attack(spell, n, s, m):
+    succ = spell["success"]
+
+    fail = handle_roll(n, s, m)
+    success = math.ceil(fail * succ)
+    print(f"Creatures which failed their save take {fail} damage, creatures which succeeded take {success} damage\n")
+    main_menu()
+    
 
 
 def check_yn(string1):
@@ -188,13 +203,13 @@ def check_int(input_val, l_limit=0, u_limit=20):
         return True
     
 
-def handle_roll(n, s, m, hs=1):
+def handle_roll(n, s, m):
     if s == 20:
         rolls = [random.randint(1,s) + m for i in range(n)]
     else:
         rolls = [random.randint(1,s) for i in range(n)]
         print(rolls)
-        rolls = math.ceil((sum(rolls))/hs + m)
+        rolls = (sum(rolls)) + m
     return rolls
     
 
