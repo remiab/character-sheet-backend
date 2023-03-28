@@ -1,5 +1,7 @@
 import random
 import json
+import math
+import time
 
 spell_dict = {
     "fireball": {
@@ -94,20 +96,46 @@ def select_spell():
     cast_spell(spell_name, level)
 
 def cast_spell(spell, level):
-    behaviour = spell_dict[spell]["HIT/DC"]
+    spell_name = spell
+    spell = spell_dict[spell]
+    s, m = spell["sides"], spell["modifier"]
+    n = check_upcast(spell, level, spell["ndice"])
+
+    behaviour = spell["HIT/DC"]
     if behaviour == None:
         pass
     else:
         if behaviour == "HIT":
-            hit = handle_roll(1, 20, ithen["ATK"])
-            q_hit = check_yn(f"You rolled a {hit} to hit, did this hit? Y/N: ")
-            if q_hit == 'y':
-                pass
-            else:
-                main_menu()
+            spell_attack(spell_name, level, n, s, m)
         else:
             print(f"Affected creatures must make a DC {ithen['DC']} {behaviour} save")
-            quit()
+
+def check_upcast(spell, level, n):
+    a = n
+    spell_level = spell["level"]
+    upcast = spell_level < level
+    if upcast:
+         a += (level-spell_level)
+    else:
+         pass
+    return a
+    
+
+def spell_attack(_name, level, n, s, m):
+    q_ad = check_yn(f"Are you rolling this attack at advantage or disadvantage? Y/N: ")
+    if q_ad == 'y':
+        hit = handle_roll(2, 20, ithen["ATK"])
+    else:
+        hit = handle_roll(1, 20, ithen["ATK"])
+    
+    q_hit = check_yn(f"You rolled a {hit} to hit, did this hit? Y/N: ")
+    if q_hit == 'y':
+        dmg = handle_roll(n, s, m)
+        print(f"For your level {level} {_name} you rolled {n}d{s} + {m} for a total of {dmg} damage\n")
+        time.sleep(2)
+        main_menu()
+    else:
+        main_menu()
 
 
 def check_yn(string1):
@@ -146,6 +174,7 @@ def input_int(string1, string2= "Enter a number to choose an option: ",
         num = input_int(string2, string2, u_limit, l_limit)
         return int(num)
     
+    
 def check_int(input_val, l_limit=0, u_limit=20):
     try:
         num = int(input_val)
@@ -159,12 +188,13 @@ def check_int(input_val, l_limit=0, u_limit=20):
         return True
     
 
-def handle_roll(n, s, m):
+def handle_roll(n, s, m, hs=1):
     if s == 20:
         rolls = [random.randint(1,s) + m for i in range(n)]
     else:
         rolls = [random.randint(1,s) for i in range(n)]
-        rolls = sum(rolls) + m
+        print(rolls)
+        rolls = math.ceil((sum(rolls))/hs + m)
     return rolls
     
 
