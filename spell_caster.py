@@ -1,7 +1,8 @@
 import random
-import json
+import pprint
 import math
 import time
+import requests
 
 spell_dict = {
     "fireball": {
@@ -71,6 +72,15 @@ ithen = {
     "ATK": 10,
     "DC": 18
 }
+
+def view_spell_list():
+    result = requests.get('http://127.0.0.1:5000/spell_list')
+    result_code = result
+    result = result.json()
+    # if result_code == '200':
+    for i, record in enumerate(result):
+        print(f"{i+1}) {record[0].title()}; level {record[1]} spell")
+
 
 def handle_damage(spell, level):
     n = spell_dict[spell]["ndice"]
@@ -142,6 +152,7 @@ def spell_attack(_name, level, n, s, m):
         main_menu()
     else:
         main_menu()
+
 
 def aoe_attack(spell, n, s, m):
     succ = spell["success"]
@@ -221,36 +232,26 @@ def print_menu(iterable):
                        len(iterable))) -1
     return choice
     
-    # try:
-    #     choice = int(choice)
-    #     if choice <0 or choice > len(iterable):
-    #         raise Exception
-    #     choice -= 1
-
-    # except:
-    #     print(f"Please enter a number between 1 and {len(iterable)}")
-    #     choice = None
-    
-    # finally: return choice
 
 
 def main_menu():
-    _main_menu = ["Dice Roll", "Cast a Spell", "Exit"] 
+    _main_menu = ["Dice Roll", "Cast a Spell", "View Spell List", "Exit"] 
     choice = print_menu(_main_menu)
 
     if choice == 0:
         custom_roll()
-    
     else:
         if choice == 1:
-             select_spell()
-        
+             select_spell()  
         else:
             if choice == 2:
-                print("Exit")
-                quit()
+                view_spell_list()
             else:
-                 main_menu()
+                if choice == 3:
+                    print("Exit")
+                    quit()
+                else:
+                    main_menu()
             
 
 
