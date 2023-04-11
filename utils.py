@@ -16,14 +16,11 @@ def db_connect(db_name):
     return cnx
 
 
-def get_spell_list():
-    db_name = 'ttrpg'
+def get_from_db(db_name, query):
     try:
         db_connection = db_connect(db_name)
-        cur = db_connection.cursor()
+        cur = db_connection.cursor(dictionary=True)
         print(f"Connected to DB: {db_name.upper()}")
-
-        query = "CALL view_ithen_spells()"
 
         cur.execute(query)
 
@@ -42,4 +39,4 @@ def get_spell_list():
     return result
 
 if __name__ == '__main__':
-    get_spell_list()
+    get_from_db('ttrpg', 'CALL view_ithen_spells();')

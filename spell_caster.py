@@ -232,28 +232,26 @@ def print_menu(iterable):
                        len(iterable))) -1
     return choice
     
+def chose_exit():
+    print("Exit")
+    quit()
 
 
 def main_menu():
+    menu_dict = {
+        "Dice Roll": custom_roll,
+        "Cast a Spell": select_spell,
+        "View Spell List": view_spell_list,
+        "Exit": chose_exit
+    }
+
     _main_menu = ["Dice Roll", "Cast a Spell", "View Spell List", "Exit"] 
     choice = print_menu(_main_menu)
 
-    if choice == 0:
-        custom_roll()
+    if choice in range(len(_main_menu)):
+        menu_dict[_main_menu[choice]]()
     else:
-        if choice == 1:
-             select_spell()  
-        else:
-            if choice == 2:
-                view_spell_list()
-            else:
-                if choice == 3:
-                    print("Exit")
-                    quit()
-                else:
-                    main_menu()
-            
-
+        main_menu()
 
 
 main_menu()
