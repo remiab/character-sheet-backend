@@ -27,6 +27,20 @@ USE ttrpg;
 -- ("altruistic healing", "necromancy", 1, "A", NULL, "I", "buff", NULL, 2),
 -- ("attuned wards", "abjuration", 1, "BA", 1, "Rd", "warding", NULL, 2),
 -- ("lifetap", "necromancy", 1, "A", NULL, "I", "damage", "buff", 2)
+-- ("fireball", "evocation", 1, "A", NULL, "I", "damage", NULL, 3),
+-- ("bend time", "abjuration", 1, "Rn", 1, "Rd", "warding", NULL, 3),
+-- ("absorb mind", "divination", 1, "A", 10, "M", "detection", NULL, 3),
+-- ("sustaining meditation", "abjuration", 1, "A", 24, "H", "buff", "warding", 3)
+-- ("counterspell", "abjuration", 1, "Rn", NULL, "I", "warding", NULL, 3),
+-- ("dispel magic", "abjuration", 1, "A", NULL, "I", "warding", NULL, 3),
+-- ("private sanctum", "abjuration", 10, "M", 24, "H", "warding", NULL, 4),
+-- ("mislead", "illusion", 1, "A", 1, "H", "warding", NULL, 5),
+-- ("telepathic bond", "divination", 1, "A", 1, "H", "communication", NULL, 5);
+
+
+
+ 
+
 
 
 
@@ -45,13 +59,13 @@ USE ttrpg;
 -- SET spells.dur_unit = times.unit_abbr;
 
 
-SELECT s.spell_name, 
-CASE 
-	WHEN dur_int IS NULL THEN t.unit_name
-    ELSE CONCAT(s.dur_int, " ", t.unit_name)
-    END
-AS Duration
-FROM spells s
-LEFT JOIN times t
-ON s.dur_unit = t.unit_abbr
-ORDER BY s.dur_int * t.unit_secs;
+-- SELECT s.spell_name, 
+-- CASE 
+-- 	WHEN dur_int IS NULL THEN t.unit_name
+--     ELSE CONCAT(s.dur_int, " ", t.unit_name)
+--     END
+-- AS Duration
+-- FROM spells s
+-- LEFT JOIN times t
+-- ON s.dur_unit = t.unit_abbr
+-- ORDER BY s.dur_int * t.unit_secs;
