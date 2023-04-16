@@ -1,5 +1,5 @@
 from unittest import TestCase, main
-from spell_caster import check_int
+from client_side import check_int
 
 class TestCheckInt(TestCase):
 
