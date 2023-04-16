@@ -3,6 +3,7 @@ import pprint
 import math
 import time
 import requests
+import json
 
 spell_dict = {
     "fireball": {
@@ -74,12 +75,11 @@ ithen = {
 }
 
 def view_spell_list():
-    result = requests.get('http://127.0.0.1:5000/spell_list')
+    result = requests.get('http://127.0.0.1:5000/prepared_spells')
     result_code = result
     result = result.json()
-    # if result_code == '200':
     for i, record in enumerate(result):
-        print(f"{i+1}) {record[0].title()}; level {record[1]} spell")
+        print(f"{i+1}) {record['spell_name'].title()}; prepared: {record['prepared']}")
 
 
 def handle_damage(spell, level):
@@ -237,6 +237,19 @@ def chose_exit():
     quit()
 
 
+def select_spell_to_update(spell_name, ud_status):
+    update = {
+        "spell_name": spell_name,
+        "spell_status": ud_status
+    }
+    result = requests.put(f"http://127.0.0.1:5000/update/prepare/{spell_name}",
+                        headers={'content-type': 'application/json'},
+                        data= json.dumps(update))
+    print(result.status_code)
+    # print(result.json())
+
+
+
 def main_menu():
     menu_dict = {
         "Dice Roll": custom_roll,
@@ -253,5 +266,5 @@ def main_menu():
     else:
         main_menu()
 
-
+# select_spell_to_update("fireball", "Y")
 main_menu()
