@@ -31,6 +31,15 @@ def update_prepared(spell_name):
     update_prepared_status(db_name, spell_name, update["spell_status"])
     return update
 
+@app.route('/image_descs/<string:spell_name>')
+def retrieve_img_id(spell_name):
+    query = f"""
+    SELECT d.drive_id FROM drive_id d
+    WHERE d.spell_name = '{spell_name}';
+    """
+    result = get_from_db(db_name, query)
+    return jsonify(result)
+
 
 
 if __name__ == '__main__':

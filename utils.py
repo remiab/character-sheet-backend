@@ -38,16 +38,12 @@ def get_from_db(db_name, query):
 
 def update_prepared_status(db_name, spell_name, spell_status):
     print(spell_name)
-    if spell_status == 'Y':
-        update_status = 'N'
-    elif spell_status == 'N':
-        update_status = 'Y'
-    else:
-        return f'Issue updating {spell_name}: {spell_status} passed'
+    print(spell_status)
+
 
     query = f"""
         UPDATE ithen_spell_list
-        SET prepared = "{update_status}"
+        SET prepared = "{spell_status}"
         WHERE spell_name = "{spell_name}";
     """
 
@@ -58,6 +54,7 @@ def update_prepared_status(db_name, spell_name, spell_status):
 
         cur.execute(query)
         db_connection.commit()
+        print("committed")
         cur.close()
 
     except Exception:
