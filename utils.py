@@ -1,5 +1,8 @@
 from config import HOST, USER, PASSWORD
 import mysql.connector
+from PIL import Image
+from io import BytesIO
+from base64 import encodebytes
 
 class DbConnectionError(Exception):
     pass
@@ -64,6 +67,15 @@ def update_prepared_status(db_name, spell_name, spell_status):
         if db_connection:
             db_connection.close()
             print(f"Connection to {db_name.upper()} is closed")
+
+
+def retrieve_spell_image(image_path):
+    img = Image.open(image_path, mode='r')
+    byte_arr = BytesIO()
+    img.save(byte_arr, format='PNG')
+    encoded_img = encodebytes(byte_arr.getvalue()).decode('ascii')
+    return encoded_img
+
 
 if __name__ == '__main__':
     get_from_db('ttrpg', 'CALL view_ithen_spells();')

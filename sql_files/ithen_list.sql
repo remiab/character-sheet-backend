@@ -58,6 +58,9 @@ USE ttrpg;
 -- ("shield", "18kXdRXIqDeVeBaByeHSJrFSsrqKMbOGr"),
 -- ("sustaining meditation", "18StIJxg2UUjZabFOD1DkoSLP8BejIeUo"),
 -- ("web", "1pyhwRs2Znlu_85aWvq38zidT-_rtfofI");
+-- ("burning hands", "1ZOyRjWn-FqjNROUzd_4yqpJn0QNXNZAc"),
+-- ("catapult", "1P0RP-Zanv8bnZQ11BE-J48Vg4b7Pas3N"),
+-- ("scorching ray", "190v9VtibclZZLmnVEgwYKaH9lc04lU8C")
 
 
 
