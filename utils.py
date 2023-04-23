@@ -39,17 +39,8 @@ def get_from_db(db_name, query):
     return result
 
 
-def update_prepared_status(db_name, spell_name, spell_status):
-    print(spell_name)
-    print(spell_status)
-
-
-    query = f"""
-        UPDATE ithen_spell_list
-        SET prepared = "{spell_status}"
-        WHERE spell_name = "{spell_name}";
-    """
-
+def update_prepared_status(db_name, query):
+    
     try:
         db_connection = db_connect(db_name)
         cur = db_connection.cursor()
