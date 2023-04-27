@@ -13,7 +13,7 @@ def view_spells(character):
         item["spell_name"] = item["spell_name"].title()
     return jsonify(result)
 
-@app.route('/update/prepare/<string:character>/<string:spell_name>', methods=['PUT'])
+@app.route('/<string:character>/spell_list/<string:spell_name>/prepare', methods=['PUT'])
 def update_prepared(character, spell_name):
     update = request.get_json()
     query = f"""
@@ -46,7 +46,7 @@ def retrieve_base_stats(character):
     result = get_from_db(db_name, query)
     return jsonify(result)
 
-@app.route('/<string:character>/skills>')
+@app.route('/<string:character>/skills')
 def retrieve_skills(character):
     query = f"""
     WITH mods_table AS (
@@ -87,6 +87,24 @@ def retrieve_skills(character):
     """
     result = get_from_db(db_name, query)
     return jsonify(result)
+
+
+@app.route('/<string:character>/hit_points/current_hp')
+def retrieve_current_hp(character):
+    query = f"""
+        SELECT current_hp 
+        FROM(
+            SELECT sum(damage) OVER (ORDER BY dmg_occurred) AS current_hp,
+                    dmg_occurred 
+            FROM hp_tracker
+            WHERE `character` = "{character}"
+            ORDER BY dmg_occurred DESC
+            LIMIT 1
+            ) hp_history;
+            """
+    result = get_from_db(db_name, query)
+    return jsonify(*result)
+
 
 if __name__ == '__main__':
     app.run(debug=True)

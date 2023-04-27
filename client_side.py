@@ -266,5 +266,16 @@ def main_menu():
     else:
         main_menu()
 
+def call_levels():
+    result = requests.get('https://www.dnd5eapi.co/api/classes/wizard/levels/9')
+    result_code = result
+    result = result.json()
+    print(result_code)
+    print(result)
+    arcane_recovery = requests.get('https://www.dnd5eapi.co/api/features/arcane-recovery')
+    pprint.pprint(arcane_recovery.json())
+
+call_levels()
+
 # select_spell_to_update("fireball", "Y")
-main_menu()
+# main_menu()
