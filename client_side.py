@@ -271,7 +271,7 @@ def call_levels():
     result_code = result
     result = result.json()
     print(result_code)
-    print(result)
+    pprint.pprint(result)
     arcane_recovery = requests.get('https://www.dnd5eapi.co/api/features/arcane-recovery')
     pprint.pprint(arcane_recovery.json())
 
