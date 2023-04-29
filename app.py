@@ -1,5 +1,5 @@
 from flask import Flask, jsonify, request
-from utils import get_from_db, update_prepared_status
+from utils import get_from_db, update_db
 
 app = Flask(__name__)
 db_name = 'ttrpg'
@@ -21,8 +21,8 @@ def update_prepared(character, spell_name):
         SET prepared = "{update["spell_status"]}"
         WHERE spell_name = "{spell_name}";
     """
-    update_prepared_status(db_name, query)
-    return update
+    update_db(db_name, query)
+    return f"updated prepared status for {spell_name}"
 
 @app.route('/image_descs/<string:spell_name>')
 def retrieve_img_id(spell_name):
@@ -136,6 +136,17 @@ def retrieve_temp_hp(character):
         """
     result = get_from_db(db_name, query)
     return jsonify(*result)
+
+@app.route('/<string:character>/hit_points/temp_hp/update', methods=['PUT'])
+def update_temp_hp(character):
+    update = request.get_json()
+    query = f"""
+        INSERT INTO temp_hp_tracker
+        VALUES ("{character}", {update["thp"]}, "{update["date_occurred"]}", "{update["event"]}");
+        """
+    print(query)
+    update_db(db_name, query)
+    return f"updated temp hp with {update['thp']} hp"
 
 
 if __name__ == '__main__':

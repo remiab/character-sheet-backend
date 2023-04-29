@@ -39,7 +39,7 @@ def get_from_db(db_name, query):
     return result
 
 
-def update_prepared_status(db_name, query):
+def update_db(db_name, query):
     
     try:
         db_connection = db_connect(db_name)
