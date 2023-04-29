@@ -92,16 +92,48 @@ def retrieve_skills(character):
 @app.route('/<string:character>/hit_points/current_hp')
 def retrieve_current_hp(character):
     query = f"""
-        SELECT current_hp 
+        SELECT current_hp, max_hp
         FROM(
             SELECT sum(damage) OVER (ORDER BY dmg_occurred) AS current_hp,
-                    dmg_occurred 
+                    dmg_occurred, max_hp
             FROM hp_tracker
             WHERE `character` = "{character}"
             ORDER BY dmg_occurred DESC
             LIMIT 1
             ) hp_history;
-            """
+        """
+    result = get_from_db(db_name, query)
+    return jsonify(*result)
+
+@app.route('/<string:character>/hit_points/arcane_ward')
+def retrieve_arcane_ward(character):
+    query = f"""
+        SELECT `current_well`, `max_points`
+        FROM(
+            SELECT sum(damage) OVER (ORDER BY dmg_occurred) AS `current_well`,
+                    dmg_occurred, max_points
+            FROM arcane_ward_tracker
+            WHERE `character` = "{character}"
+            ORDER BY dmg_occurred DESC
+            LIMIT 1
+            ) aw_history;
+        """
+    result = get_from_db(db_name, query)
+    return jsonify(*result)
+
+@app.route('/<string:character>/hit_points/temp_hp')
+def retrieve_temp_hp(character):
+    query = f"""
+        SELECT `current_thp`
+        FROM(
+            SELECT sum(damage) OVER (ORDER BY dmg_occurred) AS `current_thp`,
+                    dmg_occurred
+            FROM temp_hp_tracker
+            WHERE `character` = "{character}"
+            ORDER BY dmg_occurred DESC
+            LIMIT 1
+            ) aw_history;    
+        """
     result = get_from_db(db_name, query)
     return jsonify(*result)
 
