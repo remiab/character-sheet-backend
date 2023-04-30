@@ -132,6 +132,23 @@ def retrieve_hit_points(character):
     return jsonify(results)
 
 
+@app.route('/<string:character>/hit_points/temp_hp')
+def retrieve_temp_hp(character):
+    query = f"""
+            SELECT `current_thp`
+            FROM(
+                SELECT sum(damage) OVER (ORDER BY dmg_occurred) AS `current_thp`,
+                        dmg_occurred
+                FROM temp_hp_tracker
+                WHERE `character` = "{character}"
+                ORDER BY dmg_occurred DESC
+                LIMIT 1
+                ) thp_history;
+             """
+    result = get_from_db(db_name, query)
+    return jsonify(*result)
+
+
 @app.route('/<string:character>/hit_points/temp_hp/update', methods=['PUT'])
 def update_temp_hp(character):
     update = request.get_json()
