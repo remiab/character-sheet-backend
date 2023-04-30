@@ -1,5 +1,5 @@
 from flask import Flask, jsonify, request
-from utils import get_from_db, update_db
+from utils import get_from_db, update_db, get_multiple_from_db
 
 app = Flask(__name__)
 db_name = 'ttrpg'
@@ -89,53 +89,48 @@ def retrieve_skills(character):
     return jsonify(result)
 
 
-@app.route('/<string:character>/hit_points/current_hp')
-def retrieve_current_hp(character):
-    query = f"""
-        SELECT current_hp, max_hp
-        FROM(
-            SELECT sum(damage) OVER (ORDER BY dmg_occurred) AS current_hp,
-                    dmg_occurred, max_hp
-            FROM hp_tracker
-            WHERE `character` = "{character}"
-            ORDER BY dmg_occurred DESC
-            LIMIT 1
-            ) hp_history;
-        """
-    result = get_from_db(db_name, query)
-    return jsonify(*result)
+@app.route('/<string:character>/hit_points')
+def retrieve_hit_points(character):
+    q_current = f"""SELECT current_hp, max_hp
+                    FROM(
+                        SELECT sum(damage) OVER (ORDER BY dmg_occurred) AS current_hp,
+                                dmg_occurred, max_hp
+                        FROM hp_tracker
+                        WHERE `character` = "{character}"
+                        ORDER BY dmg_occurred DESC
+                        LIMIT 1
+                        ) hp_history;
+                 """
+    
+    q_temp = f"""
+            SELECT `current_thp`
+            FROM(
+                SELECT sum(damage) OVER (ORDER BY dmg_occurred) AS `current_thp`,
+                        dmg_occurred
+                FROM temp_hp_tracker
+                WHERE `character` = "{character}"
+                ORDER BY dmg_occurred DESC
+                LIMIT 1
+                ) thp_history;
+             """
+    
+    q_ward = f"""
+            SELECT `current_well`, `max_points`
+            FROM(
+                SELECT sum(damage) OVER (ORDER BY dmg_occurred) AS `current_well`,
+                        dmg_occurred, max_points
+                FROM arcane_ward_tracker
+                WHERE `character` = "{character}"
+                ORDER BY dmg_occurred DESC
+                LIMIT 1
+                ) aw_history;
+            
+            """
+    queries = [q_current, q_temp, q_ward]
+    tags = ["current_hp", "temp_hp", "arcane_ward"]
+    results = get_multiple_from_db(db_name, queries, tags)
+    return jsonify(results)
 
-@app.route('/<string:character>/hit_points/arcane_ward')
-def retrieve_arcane_ward(character):
-    query = f"""
-        SELECT `current_well`, `max_points`
-        FROM(
-            SELECT sum(damage) OVER (ORDER BY dmg_occurred) AS `current_well`,
-                    dmg_occurred, max_points
-            FROM arcane_ward_tracker
-            WHERE `character` = "{character}"
-            ORDER BY dmg_occurred DESC
-            LIMIT 1
-            ) aw_history;
-        """
-    result = get_from_db(db_name, query)
-    return jsonify(*result)
-
-@app.route('/<string:character>/hit_points/temp_hp')
-def retrieve_temp_hp(character):
-    query = f"""
-        SELECT `current_thp`
-        FROM(
-            SELECT sum(damage) OVER (ORDER BY dmg_occurred) AS `current_thp`,
-                    dmg_occurred
-            FROM temp_hp_tracker
-            WHERE `character` = "{character}"
-            ORDER BY dmg_occurred DESC
-            LIMIT 1
-            ) aw_history;    
-        """
-    result = get_from_db(db_name, query)
-    return jsonify(*result)
 
 @app.route('/<string:character>/hit_points/temp_hp/update', methods=['PUT'])
 def update_temp_hp(character):
@@ -147,6 +142,23 @@ def update_temp_hp(character):
     print(query)
     update_db(db_name, query)
     return f"updated temp hp with {update['thp']} hp"
+
+@app.route('/<string:character>/hit_points/update', methods=['PUT'])
+def update_after_damage(character):
+    update = request.get_json()
+    for key in update["current"].keys():
+        if key == "temp_hp":
+            query = f"""
+                INSERT INTO {key}_tracker
+                VALUES ("{character}", {update["current"][key]}, "{update["dmg_occurred"]}", "{update["event"]}");
+                """
+        else:
+            query = f"""
+                INSERT INTO {key}_tracker
+                VALUES ("{character}", {update["current"][key]}, "{update["dmg_occurred"]}", "{update["event"]}", {update["max"][key]})
+            """
+        update_db(db_name, query)
+        return "updated hp"
 
 
 if __name__ == '__main__':

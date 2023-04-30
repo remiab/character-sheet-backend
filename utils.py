@@ -36,7 +36,31 @@ def get_from_db(db_name, query):
         if db_connection:
             db_connection.close()
             print(f"Connection to {db_name.upper()} is closed")
+    print(result)
     return result
+
+def get_multiple_from_db(db_name, queries, tags):
+    results = {}
+    for i, query in enumerate(queries):
+        try:
+            db_connection = db_connect(db_name)
+            cur = db_connection.cursor(dictionary=True)
+            print(f"Connected to DB: {db_name.upper()}")
+
+            cur.execute(query)
+            result = cur.fetchall()
+            cur.close()
+
+        except Exception:
+            raise DbConnectionError(f"Failed to read data from {db_name.upper()}")
+        
+        finally:
+            if db_connection:
+                db_connection.close()
+                print(f"Connection to {db_name.upper()} is closed")
+        results[tags[i]] = result
+    return results
+
 
 
 def update_db(db_name, query):
