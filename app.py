@@ -13,6 +13,29 @@ def view_spells(character):
         item["spell_name"] = item["spell_name"].title()
     return jsonify(result)
 
+
+@app.route('/<string:character>/spell_list/prepared_spells')
+def retrieve_prepared_spells(character):
+    query = f"""
+            SELECT s.spell_name, s.`level`, s.school, s.casting_int, s.casting_unit, s.dur_int, s.dur_unit,
+            s.range_ft, t1.threshold, a.aoe_size, a.aoe_shape, d.ndice, d.sides, d.`modifier`, d.half_save
+            FROM spells s 
+            LEFT JOIN thresholds t1
+            ON s.spell_name = t1.spell_name
+            LEFT JOIN aoes a
+            ON s.spell_name = a.spell_name
+            LEFT JOIN damage d
+            ON s.spell_name = d.spell_name
+            WHERE s.spell_name IN (
+                SELECT i.spell_name FROM {character}_spell_list i
+                WHERE i.prepared = "Y"
+                )
+            ORDER BY s.`level`;
+            """
+    result = get_from_db(db_name, query)
+    return jsonify(*result)
+
+
 @app.route('/<string:character>/spell_list/<string:spell_name>/prepare', methods=['PUT'])
 def update_prepared(character, spell_name):
     update = request.get_json()
@@ -24,6 +47,7 @@ def update_prepared(character, spell_name):
     update_db(db_name, query)
     return f"updated prepared status for {spell_name}"
 
+
 @app.route('/image_descs/<string:spell_name>')
 def retrieve_img_id(spell_name):
     query = f"""
@@ -32,6 +56,7 @@ def retrieve_img_id(spell_name):
     """
     result = get_from_db(db_name, query)
     return jsonify(result)
+
 
 @app.route('/<string:character>/base_stats')
 def retrieve_base_stats(character):
@@ -160,6 +185,7 @@ def update_temp_hp(character):
     update_db(db_name, query)
     return f"updated temp hp with {update['thp']} hp"
 
+
 @app.route('/<string:character>/hit_points/update', methods=['PUT'])
 def update_after_damage(character):
     update = request.get_json()
@@ -175,7 +201,7 @@ def update_after_damage(character):
                 VALUES ("{character}", {update["current"][key]}, "{update["dmg_occurred"]}", "{update["event"]}", {update["max"][key]})
             """
         update_db(db_name, query)
-        return "updated hp"
+    return "updated hp"
 
 
 if __name__ == '__main__':
