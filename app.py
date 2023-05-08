@@ -33,6 +33,8 @@ def retrieve_prepared_spells(character):
             ORDER BY s.`level`;
             """
     result = get_from_db(db_name, query)
+    for item in result:
+        item["spell_name"] = item["spell_name"].title()
     return jsonify(*result)
 
 

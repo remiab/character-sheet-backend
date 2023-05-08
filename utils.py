@@ -64,7 +64,6 @@ def get_multiple_from_db(db_name, queries, tags):
 
 
 def update_db(db_name, query):
-    
     try:
         db_connection = db_connect(db_name)
         cur = db_connection.cursor()
