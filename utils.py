@@ -36,7 +36,6 @@ def get_from_db(db_name, query):
         if db_connection:
             db_connection.close()
             print(f"Connection to {db_name.upper()} is closed")
-    print(result)
     return result
 
 def get_multiple_from_db(db_name, queries, tags):
@@ -45,7 +44,7 @@ def get_multiple_from_db(db_name, queries, tags):
         try:
             db_connection = db_connect(db_name)
             cur = db_connection.cursor(dictionary=True)
-            print(f"Connected to DB: {db_name.upper()}")
+            (f"Connected to DB: {db_name.upper()}")
 
             cur.execute(query)
             result = cur.fetchall()

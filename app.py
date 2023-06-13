@@ -1,7 +1,9 @@
 from flask import Flask, jsonify, request
 from utils import get_from_db, update_db, get_multiple_from_db
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 db_name = 'ttrpg'
 
 
@@ -183,7 +185,6 @@ def update_temp_hp(character):
         INSERT INTO temp_hp_tracker
         VALUES ("{character}", {update["thp"]}, "{update["date_occurred"]}", "{update["event"]}");
         """
-    print(query)
     update_db(db_name, query)
     return f"updated temp hp with {update['thp']} hp"
 
@@ -207,4 +208,4 @@ def update_after_damage(character):
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, port=5000)
