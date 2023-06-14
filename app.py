@@ -7,7 +7,7 @@ CORS(app)
 db_name = 'ttrpg'
 
 
-@app.route('/<string:character>/spell_list')
+@app.route('/<string:character>/spell_list', methods=['GET'])
 def view_spells(character):
     query = f"CALL view_{character}_spells();"
     result = get_from_db(db_name, query)
@@ -16,7 +16,7 @@ def view_spells(character):
     return jsonify(result)
 
 
-@app.route('/<string:character>/spell_list/prepared_spells')
+@app.route('/<string:character>/spell_list/prepared_spells', methods=['GET'])
 def retrieve_prepared_spells(character):
     query = f"""
             SELECT s.spell_name, s.`level`, s.school, s.casting_int, s.casting_unit, s.dur_int, s.dur_unit,
@@ -52,7 +52,7 @@ def update_prepared(character, spell_name):
     return f"updated prepared status for {spell_name}"
 
 
-@app.route('/image_descs/<string:spell_name>')
+@app.route('/image_descs/<string:spell_name>', methods=['GET'])
 def retrieve_img_id(spell_name):
     query = f"""
     SELECT d.drive_id FROM drive_id d
@@ -62,7 +62,7 @@ def retrieve_img_id(spell_name):
     return jsonify(result)
 
 
-@app.route('/<string:character>/base_stats')
+@app.route('/<string:character>/base_stats', methods=['GET'])
 def retrieve_base_stats(character):
     query = f"""
     SELECT DISTINCT bm.STAT, bm.SCORE, bm.MODIFIER, bs.index_id
@@ -75,7 +75,7 @@ def retrieve_base_stats(character):
     result = get_from_db(db_name, query)
     return jsonify(result)
 
-@app.route('/<string:character>/skills')
+@app.route('/<string:character>/skills', methods=['GET'])
 def retrieve_skills(character):
     query = f"""
     WITH mods_table AS (
@@ -118,7 +118,7 @@ def retrieve_skills(character):
     return jsonify(result)
 
 
-@app.route('/<string:character>/hit_points')
+@app.route('/<string:character>/hit_points', methods=['GET'])
 def retrieve_hit_points(character):
     q_current = f"""SELECT current_hp, max_hp
                     FROM(
@@ -161,7 +161,7 @@ def retrieve_hit_points(character):
     return jsonify(results)
 
 
-@app.route('/<string:character>/hit_points/temp_hp')
+@app.route('/<string:character>/hit_points/temp_hp', methods=['GET'])
 def retrieve_temp_hp(character):
     query = f"""
             SELECT `current_thp`
@@ -205,6 +205,33 @@ def update_after_damage(character):
             """
         update_db(db_name, query)
     return "updated hp"
+
+
+@app.route('/<string:character>/expendables/combat', methods=['GET'])
+def retrieve_combat_expendables(character):
+    query = f"""
+        SELECT expend_id, `name`, time_of_use, expended 
+        FROM expendables
+        WHERE `character` = "{character}"
+        AND time_of_use = "combat"
+        ORDER BY `name`;
+        """
+    result = get_from_db(db_name, query)
+    grouped_results = {}
+    for item in result:
+        try:
+            grouped_results[item["name"]].append(item)
+        except KeyError:
+            if "Spell Slot" in item["name"]:
+                try:
+                    grouped_results["Spell Slots"].append(item)
+                except KeyError:
+                    grouped_results["Spell Slots"] = []
+                    grouped_results["Spell Slots"].append(item)
+            else:
+                grouped_results[item["name"]] = []
+                grouped_results[item["name"]].append(item)
+    return(grouped_results)
 
 
 if __name__ == '__main__':

@@ -275,7 +275,14 @@ def call_levels():
     arcane_recovery = requests.get('https://www.dnd5eapi.co/api/features/arcane-recovery')
     pprint.pprint(arcane_recovery.json())
 
-call_levels()
+# call_levels()
+
+def call_combat_expendables():
+    result = requests.get('http://127.0.0.1:5000/ithen/expendables/combat')
+    print(result)
+    pprint.pprint(result.json())
+
+call_combat_expendables()
 
 # select_spell_to_update("fireball", "Y")
 # main_menu()
