@@ -214,7 +214,7 @@ def retrieve_combat_expendables(character):
         FROM expendables
         WHERE `character` = "{character}"
         AND time_of_use = "combat"
-        ORDER BY disp_priority;
+        ORDER BY disp_priority, expend_id;
         """
     result = get_from_db(db_name, query)
     grouped_results = {}
@@ -234,6 +234,37 @@ def retrieve_combat_expendables(character):
                 grouped_results[item["name"]].append(item)
     grouped_results["Spell_Slots"] = spell_slots
     return(grouped_results)
+
+@app.route('/expendables/<int:expend_id>', methods=['GET', 'POST'])
+def expendable_status(expend_id):
+    def retrieve_expendable_status(expend_id):
+        query = f"""
+            SELECT expended
+            FROM expendables
+            WHERE expend_id = {expend_id};
+        """
+        result = get_from_db(db_name, query)
+        return(jsonify(*result))
+    
+    def update_expendable_status(expend_id):
+        update = request.get_json()
+        status = update["update_status"]
+        query = f"""
+            UPDATE expendables
+            SET expended = {status}
+            WHERE expend_id = {expend_id};
+        """
+        update_db(db_name, query)
+        return "Updated expendable status"
+    
+    if request.method == 'GET':
+        return retrieve_expendable_status(expend_id)
+    else:
+        return update_expendable_status(expend_id)
+
+@app.route('/favicon.ico', methods=['GET'])
+def ferret_out_favico():
+    return "Ferret out"
 
 
 if __name__ == '__main__':
