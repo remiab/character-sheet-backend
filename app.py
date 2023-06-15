@@ -210,27 +210,29 @@ def update_after_damage(character):
 @app.route('/<string:character>/expendables/combat', methods=['GET'])
 def retrieve_combat_expendables(character):
     query = f"""
-        SELECT expend_id, `name`, time_of_use, expended 
+        SELECT expend_id, `name`, expended, disp_priority 
         FROM expendables
         WHERE `character` = "{character}"
         AND time_of_use = "combat"
-        ORDER BY `name`;
+        ORDER BY disp_priority;
         """
     result = get_from_db(db_name, query)
     grouped_results = {}
+    spell_slots = {}
     for item in result:
         try:
             grouped_results[item["name"]].append(item)
         except KeyError:
             if "Spell Slot" in item["name"]:
                 try:
-                    grouped_results["Spell Slots"].append(item)
+                    spell_slots[item["name"]].append(item)
                 except KeyError:
-                    grouped_results["Spell Slots"] = []
-                    grouped_results["Spell Slots"].append(item)
+                    spell_slots[item["name"]] = []
+                    spell_slots[item["name"]].append(item)
             else:
                 grouped_results[item["name"]] = []
                 grouped_results[item["name"]].append(item)
+    grouped_results["Spell_Slots"] = spell_slots
     return(grouped_results)
 
 
