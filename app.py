@@ -255,7 +255,7 @@ def check_if_slots_available(character, level_tags):
         if result:
             availability_dict[level] = result[0]["expend_id"]
         else:
-            availability_dict[level] = "null"
+            availability_dict[level] = None
 
     return availability_dict
 
