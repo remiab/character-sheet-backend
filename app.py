@@ -100,15 +100,15 @@ def retrieve_skills(character):
     )
 
     SELECT m.skill, 
-	m.base_stat,
-	CASE 
-		WHEN m. proficiency = 2 THEN "Expertise"
+    m.base_stat,
+    CASE 
+        WHEN m. proficiency = 2 THEN "Expertise"
         WHEN m.proficiency = 1 THEN "Proficient"
         ELSE NULL
         END
-	AS proficiency_level,
+    AS proficiency_level,
     SUM(
-		m.base_mod + 
+        m.base_mod + 
         m.bonus +
         (m.proficiency * (SELECT proficiency_bonus("{character}")))) AS `modifier`
     FROM mods_table m
@@ -210,7 +210,7 @@ def update_after_damage(character):
 @app.route('/<string:character>/expendables/combat', methods=['GET'])
 def retrieve_combat_expendables(character):
     query = f"""
-        SELECT expend_id, `name`, expended, disp_priority 
+        SELECT expend_id, `name`, disp_priority 
         FROM expendables
         WHERE `character` = "{character}"
         AND time_of_use = "combat"
@@ -235,32 +235,43 @@ def retrieve_combat_expendables(character):
     grouped_results["Spell_Slots"] = spell_slots
     return(grouped_results)
 
-@app.route('/expendables/<int:expend_id>', methods=['GET', 'POST'])
-def expendable_status(expend_id):
-    def retrieve_expendable_status(expend_id):
-        query = f"""
-            SELECT expended
-            FROM expendables
-            WHERE expend_id = {expend_id};
-        """
-        result = get_from_db(db_name, query)
-        return(jsonify(*result))
+@app.route('/expendables/<int:expend_id>/update', methods=['POST'])
+# def expendable_status(expend_id):
+    # def retrieve_expendable_status(expend_id):
+    #     query = f"""
+    #         SELECT expended
+    #         FROM expendables
+    #         WHERE expend_id = {expend_id};
+    #     """
+    #     result = get_from_db(db_name, query)
+    #     return(jsonify(*result))
     
-    def update_expendable_status(expend_id):
-        update = request.get_json()
-        status = update["update_status"]
-        query = f"""
-            UPDATE expendables
-            SET expended = {status}
-            WHERE expend_id = {expend_id};
-        """
-        update_db(db_name, query)
-        return "Updated expendable status"
+def update_expendable_status(expend_id):
+    update = request.get_json()
+    status = update["update_status"]
+    query = f"""
+        UPDATE expendables
+        SET expended = {status}
+        WHERE expend_id = {expend_id};
+    """
+    update_db(db_name, query)
+    return "Updated expendable status"
     
-    if request.method == 'GET':
-        return retrieve_expendable_status(expend_id)
-    else:
-        return update_expendable_status(expend_id)
+    # if request.method == 'GET':
+    #     return retrieve_expendable_status(expend_id)
+    # else:
+    #     return update_expendable_status(expend_id)
+
+@app.route('/expendables/<string:expend_ids>', methods=['GET'])
+def retrieve_expended_status(expend_ids):
+    query= f"""
+        SELECT expend_id, expended
+        FROM expendables
+        WHERE expend_id IN ({expend_ids});
+    """
+    result = get_from_db(db_name, query)
+    return result
+
 
 @app.route('/favicon.ico', methods=['GET'])
 def ferret_out_favico():
