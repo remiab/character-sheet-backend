@@ -278,7 +278,7 @@ def call_levels():
 # call_levels()
 
 def call_combat_expendables():
-    result = requests.get('http://127.0.0.1:5000/ithen/expendables/combat')
+    result = requests.get('http://127.0.0.1:5000/ithen/spell_slots/1st Level,2nd Level')
     print(result)
     pprint.pprint(result.json())
 

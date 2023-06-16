@@ -235,17 +235,31 @@ def retrieve_combat_expendables(character):
     grouped_results["Spell_Slots"] = spell_slots
     return(grouped_results)
 
+@app.route('/<string:character>/spell_slots/<string:level_tags>', methods=['GET'])
+def check_if_slots_available(character, level_tags):
+    levels = level_tags.split(',')
+    availability_dict = {}
+
+    for level in levels:
+        query = f"""
+            SELECT expend_id 
+            FROM expendables
+            WHERE `character` = '{character}'
+            AND expended = 0
+            AND `name` LIKE '{level}%'
+            ORDER BY expend_id
+            LIMIT 1;
+        """
+        result =  get_from_db(db_name, query)
+        
+        if result:
+            availability_dict[level] = result[0]["expend_id"]
+        else:
+            availability_dict[level] = "null"
+
+    return availability_dict
+
 @app.route('/expendables/<int:expend_id>/update', methods=['POST'])
-# def expendable_status(expend_id):
-    # def retrieve_expendable_status(expend_id):
-    #     query = f"""
-    #         SELECT expended
-    #         FROM expendables
-    #         WHERE expend_id = {expend_id};
-    #     """
-    #     result = get_from_db(db_name, query)
-    #     return(jsonify(*result))
-    
 def update_expendable_status(expend_id):
     update = request.get_json()
     status = update["update_status"]
@@ -257,10 +271,6 @@ def update_expendable_status(expend_id):
     update_db(db_name, query)
     return "Updated expendable status"
     
-    # if request.method == 'GET':
-    #     return retrieve_expendable_status(expend_id)
-    # else:
-    #     return update_expendable_status(expend_id)
 
 @app.route('/expendables/<string:expend_ids>', methods=['GET'])
 def retrieve_expended_status(expend_ids):
