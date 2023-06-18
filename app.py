@@ -201,10 +201,20 @@ def update_after_damage(character):
         else:
             query = f"""
                 INSERT INTO {key}_tracker
-                VALUES ("{character}", {update["current"][key]}, "{update["dmg_occurred"]}", "{update["event"]}", {update["max"][key]})
+                VALUES ("{character}", {update["current"][key]}, "{update["dmg_occurred"]}", "{update["event"]}", {update["max"][key]});
             """
         update_db(db_name, query)
     return "updated hp"
+
+@app.route('/<string:character>/hit_points/arcane_ward/update', methods=['PUT'])
+def replenish_arcane_ward(character):
+    update = request.get_json()
+    query = f"""
+        INSERT INTO arcane_ward_tracker
+        VALUES ("{character}", {update["replen"]}, "{update["dmg_occurred"]}", "{update["event_tag"]}", {update["max"]});
+        """
+    update_db(db_name, query)
+    return ("replenished arcane ward")
 
 
 @app.route('/<string:character>/expendables/combat', methods=['GET'])
